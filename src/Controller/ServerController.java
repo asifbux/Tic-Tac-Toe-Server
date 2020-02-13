@@ -1,3 +1,8 @@
+package Controller;
+
+import Model.Constants;
+import Model.Game;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,7 +17,6 @@ public class ServerController implements Constants {
     private ServerSocket serverSocket;
     private ExecutorService pool;
 
-
     public ServerController() {
         try {
             serverSocket = new ServerSocket(9806);
@@ -26,7 +30,6 @@ public class ServerController implements Constants {
     public void runServer() {
 
         try {
-
             aSocket = serverSocket.accept();
             outputStreamX = new ObjectOutputStream(aSocket.getOutputStream());
             inputStreamX = new ObjectInputStream(aSocket.getInputStream());

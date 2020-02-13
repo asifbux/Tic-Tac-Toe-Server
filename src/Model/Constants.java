@@ -1,4 +1,4 @@
-// TODO: Auto-generated Javadoc
+package Model;// TODO: Auto-generated Javadoc
 /**
  * The Interface Constants which contains static variables for empty space, 'X' and 'O' characters.
  * 

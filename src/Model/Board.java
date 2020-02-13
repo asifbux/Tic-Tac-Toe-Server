@@ -1,4 +1,4 @@
-// TODO: Auto-generated Javadoc
+package Model;// TODO: Auto-generated Javadoc
 //STUDENTS SHOULD ADD CLASS COMMENTS, METHOD COMMENTS, FIELD COMMENTS 
 
 
@@ -34,7 +34,7 @@ public class Board implements Constants, Serializable {
 		for (int i = 0; i < 3; i++) {
 			theBoard[i] = new char[3];
 			for (int j = 0; j < 3; j++)
-				theBoard[i][j] = SPACE_CHAR;
+				theBoard[i][j] = Constants.SPACE_CHAR;
 		}
 	}
 
@@ -64,7 +64,7 @@ public class Board implements Constants, Serializable {
 	 * @return true, if player X is 1
 	 */
 	public boolean xWins() {
-		if (checkWinner(LETTER_X) == 1)
+		if (checkWinner(Constants.LETTER_X) == 1)
 			return true;
 		else
 			return false;
@@ -76,7 +76,7 @@ public class Board implements Constants, Serializable {
 	 * @return true, if player O is 1
 	 */
 	public boolean oWins() {
-		if (checkWinner(LETTER_O) == 1)
+		if (checkWinner(Constants.LETTER_O) == 1)
 			return true;
 		else
 			return false;
@@ -102,7 +102,7 @@ public class Board implements Constants, Serializable {
 	public void clear() {
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 3; j++)
-				theBoard[i][j] = SPACE_CHAR;
+				theBoard[i][j] = Constants.SPACE_CHAR;
 		markCount = 0;
 	}
 

@@ -1,4 +1,4 @@
-// TODO: Auto-generated Javadoc
+package Model;
 
 import java.io.Serializable;
 

@@ -1,3 +1,5 @@
+package Model;
+
 import java.io.*;
 import java.util.concurrent.TimeUnit;
 
@@ -10,21 +12,28 @@ public class Game implements Constants, Runnable {
 
     public Game(ObjectOutputStream outputStreamX,  ObjectOutputStream outputStreamO,
                 ObjectInputStream inputStreamX, ObjectInputStream inputStreamO) throws IOException, ClassNotFoundException {
-        theBoard  = new Board();
+        theBoard = new Board();
         this.outputStreamX = outputStreamX;
         this.outputStreamO = outputStreamO;
         this.inputStreamX = inputStreamX;
         this.inputStreamO = inputStreamO;
-
-        try {
-            xPlayerHelper = (PlayerHelper) inputStreamX.readObject();
-            oPlayerHelper = (PlayerHelper) inputStreamO.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+        xPlayerHelper = new PlayerHelper(new Player("", 'Z'), null, null, 0);
+        oPlayerHelper = new PlayerHelper(new Player("", 'Z'), null, null, 0);
+        sendObjectX(13, "");
+        sendObjectO(13, "");
+            try {
+                xPlayerHelper = (PlayerHelper) inputStreamX.readObject();
+                oPlayerHelper = (PlayerHelper) inputStreamO.readObject();
+            } catch (EOFException e) {
+                // ... this is fine
+            } catch (IOException e) {
+                // handle exception which is not expected
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            setupTheGame();
         }
-
-        setupTheGame();
-    }
 
     public void setupTheGame() throws IOException, ClassNotFoundException {
         xPlayerHelper.getPlayer().setBoard(theBoard);
@@ -39,7 +48,6 @@ public class Game implements Constants, Runnable {
     public void startTheGame() throws IOException, ClassNotFoundException {
         sendObjectX(1, "Two players have joined the game. Game has started");
         sendObjectO(1, "Two players have joined the game. Game has started");
-
         try {
             TimeUnit.SECONDS.sleep(2);
         } catch (InterruptedException e) {
@@ -48,7 +56,6 @@ public class Game implements Constants, Runnable {
         sendObjectO(2, "");
         sendObjectX(2, "");
         makeMove();
-
     }
     public void makeMove() throws IOException, ClassNotFoundException {
         while(true) {
@@ -60,8 +67,7 @@ public class Game implements Constants, Runnable {
     }
 
     public boolean xMove() throws IOException, ClassNotFoundException {
-        boolean xTurn = true;
-        while(xTurn) {
+        while(true) {
             sendObjectXO(3, xPlayerHelper.getPlayer().getName() + " your turn",
                     4, "Please wait X is making the move");
             xPlayerHelper = (PlayerHelper) inputStreamX.readObject();
@@ -72,7 +78,7 @@ public class Game implements Constants, Runnable {
 
                 oPlayerHelper.setPosition(xPlayerHelper.getPosition());
                 sendObjectO(10, "");
-                xTurn = false;
+                break;
             }
             else { // now tell the client your mark is not valid make another move
                 sendObjectX(7, "Invalid Move " + xPlayerHelper.getPlayer().getName() + ", your turn again");
@@ -82,8 +88,7 @@ public class Game implements Constants, Runnable {
     }
 
     public boolean oMove() throws IOException, ClassNotFoundException {
-        boolean oTurn = true;
-        while (oTurn) {
+        while (true) {
             sendObjectXO(4, "Please wait O is making the move",
                     3, oPlayerHelper.getPlayer().getName() + " your turn");
             oPlayerHelper = (PlayerHelper) inputStreamO.readObject();
@@ -94,7 +99,7 @@ public class Game implements Constants, Runnable {
 
                 xPlayerHelper.setPosition(oPlayerHelper.getPosition());
                 sendObjectX(11, "");
-                oTurn = false;
+                break;
             }
             else { // now tell the client your mark is not valid make another move
                 sendObjectX(7, "Invalid Move " + oPlayerHelper.getPlayer().getName() + ", your turn again");
@@ -103,20 +108,21 @@ public class Game implements Constants, Runnable {
         return true;
     }
 
-
     public boolean checkMove() throws IOException {
         if (theBoard.xWins()) { // Returns True if there is any tie
             sendObjectXO(9, xPlayerHelper.getPlayer().getName() +" you are the Winner!",
                     12,oPlayerHelper.getPlayer().getName() +" you lost the Game!");
+            closeStream();
         }
         else if(theBoard.oWins()) {
             sendObjectXO(12, xPlayerHelper.getPlayer().getName() +" you lost the Game!",
                     9, oPlayerHelper.getPlayer().getName() +" you are the Winner!");
-
+            closeStream();
         }
         else if(theBoard.isFull()) {
             sendObjectXO(8, "The game has ended. It's a tie!",
                     8, "The game has ended. It's a tie!");
+            closeStream();
         }
         return true;
     }
@@ -149,6 +155,18 @@ public class Game implements Constants, Runnable {
     public void sendObjectXO(int xResponseNumber, String xMessage, int oResponseNumber, String oMessage) {
         sendObjectX(xResponseNumber, xMessage);
         sendObjectO(oResponseNumber, oMessage);
+    }
+
+    public void closeStream() {
+        try {
+            inputStreamO.close();
+            inputStreamX.close();
+            outputStreamO.close();
+            outputStreamX.close();
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
