@@ -1,5 +1,4 @@
-package Model;// TODO: Auto-generated Javadoc
-//STUDENTS SHOULD ADD CLASS COMMENTS, METHOD COMMENTS, FIELD COMMENTS 
+package Model;
 
 
 import java.io.Serializable;

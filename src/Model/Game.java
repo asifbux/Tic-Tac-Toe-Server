@@ -4,6 +4,9 @@ import java.io.*;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The type Game.
+ */
 public class Game implements Constants, Runnable {
 
     private PlayerHelper xPlayerHelper, oPlayerHelper;
@@ -11,6 +14,14 @@ public class Game implements Constants, Runnable {
     private ObjectOutputStream outputStreamX, outputStreamO;
     private ObjectInputStream inputStreamX, inputStreamO;
 
+    /**
+     * Instantiates a new Game.
+     *
+     * @param outputStreamX the output stream x
+     * @param outputStreamO the output stream o
+     * @param inputStreamX  the input stream x
+     * @param inputStreamO  the input stream o
+     */
     public Game(ObjectOutputStream outputStreamX,  ObjectOutputStream outputStreamO,
                 ObjectInputStream inputStreamX, ObjectInputStream inputStreamO){
         theBoard = new Board();
@@ -20,6 +31,9 @@ public class Game implements Constants, Runnable {
         this.inputStreamO = inputStreamO;
         }
 
+    /**
+     * Sets the game.
+     */
     public void setupTheGame() {
         xPlayerHelper = new PlayerHelper(new Player("", 'Z'), null, null, 0);
         oPlayerHelper = new PlayerHelper(new Player("", 'Z'), null, null, 0);
@@ -44,6 +58,9 @@ public class Game implements Constants, Runnable {
         startTheGame();
     }
 
+    /**
+     * Start the game.
+     */
     public void startTheGame() {
         sendObjectX(1, "Two players have joined the game. Game has started");
         sendObjectO(1, "Two players have joined the game. Game has started");
@@ -56,6 +73,10 @@ public class Game implements Constants, Runnable {
         sendObjectX(2, "");
         makeMove();
     }
+
+    /**
+     * Make move.
+     */
     public void makeMove() {
         while (true) {
             try {
@@ -83,6 +104,13 @@ public class Game implements Constants, Runnable {
     }
 
 
+    /**
+     * X move boolean.
+     *
+     * @return the boolean
+     * @throws IOException            the io exception
+     * @throws ClassNotFoundException the class not found exception
+     */
     public boolean xMove() throws IOException, ClassNotFoundException {
         while(true) {
             sendObjectXO(3, xPlayerHelper.getPlayer().getName() + " your turn",
@@ -104,6 +132,13 @@ public class Game implements Constants, Runnable {
         return true;
     }
 
+    /**
+     * O move boolean.
+     *
+     * @return the boolean
+     * @throws IOException            the io exception
+     * @throws ClassNotFoundException the class not found exception
+     */
     public boolean oMove() throws IOException, ClassNotFoundException {
         while (true) {
             sendObjectXO(4, "Please wait O is making the move",
@@ -125,6 +160,11 @@ public class Game implements Constants, Runnable {
         return true;
     }
 
+    /**
+     * Check move boolean.
+     *
+     * @return the boolean
+     */
     public boolean checkMove() {
         if (theBoard.xWins()) { // Returns True if there is any tie
             sendObjectXO(9, xPlayerHelper.getPlayer().getName() +" you are the Winner!",
@@ -144,12 +184,26 @@ public class Game implements Constants, Runnable {
         return false;
     }
 
+    /**
+     * Validate move boolean.
+     *
+     * @param aPlayerHelper the a player helper
+     * @return the boolean
+     */
     public boolean validateMove(PlayerHelper aPlayerHelper) {
         if(theBoard.getMark(aPlayerHelper.getPosition()[0],aPlayerHelper.getPosition()[1]) == SPACE_CHAR)
             return true;
         return false;
     }
 
+    /**
+     * Send object.
+     *
+     * @param outputStreamA  the output stream a
+     * @param aPlayerHelper  the a player helper
+     * @param responseNumber the response number
+     * @param message        the message
+     */
     public void sendObject(ObjectOutputStream outputStreamA, PlayerHelper aPlayerHelper, int responseNumber, String message) {
         aPlayerHelper = new PlayerHelper(aPlayerHelper.getPlayer(), aPlayerHelper.getPosition(), null, 0);
         aPlayerHelper.setResponseNumber(responseNumber);
@@ -166,19 +220,42 @@ public class Game implements Constants, Runnable {
         }
     }
 
+    /**
+     * Send object x.
+     *
+     * @param responseNumber the response number
+     * @param message        the message
+     */
     public void sendObjectX(int responseNumber, String message) {
         sendObject(outputStreamX, xPlayerHelper, responseNumber, message);
     }
 
+    /**
+     * Send object o.
+     *
+     * @param responseNumber the response number
+     * @param message        the message
+     */
     public void sendObjectO(int responseNumber, String message) {
         sendObject(outputStreamO, oPlayerHelper, responseNumber, message);
     }
 
+    /**
+     * Send object xo.
+     *
+     * @param xResponseNumber the x response number
+     * @param xMessage        the x message
+     * @param oResponseNumber the o response number
+     * @param oMessage        the o message
+     */
     public void sendObjectXO(int xResponseNumber, String xMessage, int oResponseNumber, String oMessage) {
         sendObjectX(xResponseNumber, xMessage);
         sendObjectO(oResponseNumber, oMessage);
     }
 
+    /**
+     * Close stream.
+     */
     public void closeStream() {
         try {
             inputStreamO.close();
