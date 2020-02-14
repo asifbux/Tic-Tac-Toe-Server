@@ -23,13 +23,13 @@ public class Game implements Constants, Runnable {
      * @param inputStreamO  the input stream o
      */
     public Game(ObjectOutputStream outputStreamX,  ObjectOutputStream outputStreamO,
-                ObjectInputStream inputStreamX, ObjectInputStream inputStreamO){
+                ObjectInputStream inputStreamX, ObjectInputStream inputStreamO) {
         theBoard = new Board();
         this.outputStreamX = outputStreamX;
         this.outputStreamO = outputStreamO;
         this.inputStreamX = inputStreamX;
         this.inputStreamO = inputStreamO;
-        }
+    }
 
     /**
      * Sets the game.
@@ -49,6 +49,10 @@ public class Game implements Constants, Runnable {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        setPlayers();
+    }
+
+    public void setPlayers() {
         xPlayerHelper.getPlayer().setBoard(theBoard);
         oPlayerHelper.getPlayer().setBoard(theBoard);
         xPlayerHelper.getPlayer().setOpponent(oPlayerHelper.getPlayer().getOpponent());
@@ -80,24 +84,15 @@ public class Game implements Constants, Runnable {
     public void makeMove() {
         while (true) {
             try {
-                if (xMove()) {
-                }
-                if (checkMove()) {
-                    break;
-                }
-                if (oMove()) {
-                }
-                if (checkMove()) {
-                    break;
-                }
-            }
-            catch (SocketException e) {
+                if (xMove()) { }
+                if (checkMove()) { break; }
+                if (oMove()) { }
+                if (checkMove()) { break; }
+            } catch (SocketException e) {
                 closeStream();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 closeStream();
-            }
-            catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
@@ -274,8 +269,8 @@ public class Game implements Constants, Runnable {
     @Override
     public void run() {
         while(true) {
-                setupTheGame();
-                break;
+            setupTheGame();
+            break;
         }
     }
 }

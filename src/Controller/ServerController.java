@@ -61,7 +61,6 @@ public class ServerController implements Constants {
      * @param args the args
      */
     public static void main(String args[]) {
-
         new ServerController();
     }
 
