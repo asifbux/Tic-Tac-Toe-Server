@@ -1,6 +1,7 @@
 package Model;
 
 import java.io.*;
+import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 
 public class Game implements Constants, Runnable {
@@ -57,14 +58,35 @@ public class Game implements Constants, Runnable {
         sendObjectX(2, "");
         makeMove();
     }
-    public void makeMove() throws IOException, ClassNotFoundException {
-        while(true) {
-            if(xMove()) {};
-            if(checkMove()) {};
-            if(oMove()) {};
-            if(checkMove()) {};
+    public void makeMove() throws ClassNotFoundException {
+        while (true) {
+            try {
+                if (xMove()) {
+                }
+                ;
+                if (checkMove()) {
+                    closeStream();
+                    break;
+                }
+                ;
+                if (oMove()) {
+                }
+                ;
+                if (checkMove()) {
+                    closeStream();
+                    break;
+                }
+                ;
+            }
+            catch (SocketException e) {
+                closeStream();
+            }
+            catch (IOException e) {
+                closeStream();
+            }
         }
     }
+
 
     public boolean xMove() throws IOException, ClassNotFoundException {
         while(true) {
@@ -112,19 +134,19 @@ public class Game implements Constants, Runnable {
         if (theBoard.xWins()) { // Returns True if there is any tie
             sendObjectXO(9, xPlayerHelper.getPlayer().getName() +" you are the Winner!",
                     12,oPlayerHelper.getPlayer().getName() +" you lost the Game!");
-            closeStream();
+            return true;
         }
         else if(theBoard.oWins()) {
             sendObjectXO(12, xPlayerHelper.getPlayer().getName() +" you lost the Game!",
                     9, oPlayerHelper.getPlayer().getName() +" you are the Winner!");
-            closeStream();
+            return true;
         }
         else if(theBoard.isFull()) {
             sendObjectXO(8, "The game has ended. It's a tie!",
                     8, "The game has ended. It's a tie!");
-            closeStream();
+            return true;
         }
-        return true;
+        return false;
     }
 
     public boolean validateMove(PlayerHelper aPlayerHelper) {
@@ -139,8 +161,11 @@ public class Game implements Constants, Runnable {
         aPlayerHelper.setLine(message);
         try {
             outputStreamA.writeObject(aPlayerHelper);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (SocketException e) {
+            closeStream();
+        }
+        catch (IOException e) {
+            closeStream();
         }
     }
 
@@ -163,8 +188,10 @@ public class Game implements Constants, Runnable {
             inputStreamX.close();
             outputStreamO.close();
             outputStreamX.close();
-            System.exit(0);
-        } catch (IOException e) {
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }

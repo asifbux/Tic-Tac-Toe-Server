@@ -2,13 +2,15 @@ package Controller;
 
 import Model.Constants;
 import Model.Game;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * The type Server controller.
+ */
 public class ServerController implements Constants {
 
     private Socket aSocket, oSocket;
@@ -17,35 +19,47 @@ public class ServerController implements Constants {
     private ServerSocket serverSocket;
     private ExecutorService pool;
 
+    /**
+     * Instantiates a new Server controller.
+     */
     public ServerController() {
         try {
             serverSocket = new ServerSocket(9806);
-            pool = Executors.newCachedThreadPool();
+            pool = Executors.newFixedThreadPool(10);
             runServer();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Could not listen to port");
+            System.exit(-1);
         }
     }
 
+    /**
+     * Run server.
+     */
     public void runServer() {
-
         try {
-            aSocket = serverSocket.accept();
-            outputStreamX = new ObjectOutputStream(aSocket.getOutputStream());
-            inputStreamX = new ObjectInputStream(aSocket.getInputStream());
+            while(true) {
+                aSocket = serverSocket.accept();
+                outputStreamX = new ObjectOutputStream(aSocket.getOutputStream());
+                inputStreamX = new ObjectInputStream(aSocket.getInputStream());
 
-            oSocket = serverSocket.accept();
-            outputStreamO = new ObjectOutputStream(oSocket.getOutputStream());
-            inputStreamO = new ObjectInputStream(oSocket.getInputStream());
+                oSocket = serverSocket.accept();
+                outputStreamO = new ObjectOutputStream(oSocket.getOutputStream());
+                inputStreamO = new ObjectInputStream(oSocket.getInputStream());
 
-            Game game = new Game(outputStreamX, outputStreamO, inputStreamX, inputStreamO);
-            pool.execute(game); // two players for one thread
-
+                Game game = new Game(outputStreamX, outputStreamO, inputStreamX, inputStreamO);
+                pool.execute(game);
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Main.
+     *
+     * @param args the args
+     */
     public static void main(String args[]) {
 
         new ServerController();
