@@ -12,31 +12,29 @@ public class Game implements Constants, Runnable {
     private ObjectInputStream inputStreamX, inputStreamO;
 
     public Game(ObjectOutputStream outputStreamX,  ObjectOutputStream outputStreamO,
-                ObjectInputStream inputStreamX, ObjectInputStream inputStreamO) throws IOException, ClassNotFoundException {
+                ObjectInputStream inputStreamX, ObjectInputStream inputStreamO){
         theBoard = new Board();
         this.outputStreamX = outputStreamX;
         this.outputStreamO = outputStreamO;
         this.inputStreamX = inputStreamX;
         this.inputStreamO = inputStreamO;
+        }
+
+    public void setupTheGame() {
         xPlayerHelper = new PlayerHelper(new Player("", 'Z'), null, null, 0);
         oPlayerHelper = new PlayerHelper(new Player("", 'Z'), null, null, 0);
         sendObjectX(13, "");
         sendObjectO(13, "");
-            try {
-                xPlayerHelper = (PlayerHelper) inputStreamX.readObject();
-                oPlayerHelper = (PlayerHelper) inputStreamO.readObject();
-            } catch (EOFException e) {
-                // ... this is fine
-            } catch (IOException e) {
-                // handle exception which is not expected
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            setupTheGame();
+        try {
+            xPlayerHelper = (PlayerHelper) inputStreamX.readObject();
+            oPlayerHelper = (PlayerHelper) inputStreamO.readObject();
+        } catch (EOFException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-
-    public void setupTheGame() throws IOException, ClassNotFoundException {
         xPlayerHelper.getPlayer().setBoard(theBoard);
         oPlayerHelper.getPlayer().setBoard(theBoard);
         xPlayerHelper.getPlayer().setOpponent(oPlayerHelper.getPlayer().getOpponent());
@@ -46,7 +44,7 @@ public class Game implements Constants, Runnable {
         startTheGame();
     }
 
-    public void startTheGame() throws IOException, ClassNotFoundException {
+    public void startTheGame() {
         sendObjectX(1, "Two players have joined the game. Game has started");
         sendObjectO(1, "Two players have joined the game. Game has started");
         try {
@@ -58,31 +56,28 @@ public class Game implements Constants, Runnable {
         sendObjectX(2, "");
         makeMove();
     }
-    public void makeMove() throws ClassNotFoundException {
+    public void makeMove() {
         while (true) {
             try {
                 if (xMove()) {
                 }
-                ;
                 if (checkMove()) {
-                    closeStream();
                     break;
                 }
-                ;
                 if (oMove()) {
                 }
-                ;
                 if (checkMove()) {
-                    closeStream();
                     break;
                 }
-                ;
             }
             catch (SocketException e) {
                 closeStream();
             }
             catch (IOException e) {
                 closeStream();
+            }
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -130,7 +125,7 @@ public class Game implements Constants, Runnable {
         return true;
     }
 
-    public boolean checkMove() throws IOException {
+    public boolean checkMove() {
         if (theBoard.xWins()) { // Returns True if there is any tie
             sendObjectXO(9, xPlayerHelper.getPlayer().getName() +" you are the Winner!",
                     12,oPlayerHelper.getPlayer().getName() +" you lost the Game!");
@@ -162,10 +157,12 @@ public class Game implements Constants, Runnable {
         try {
             outputStreamA.writeObject(aPlayerHelper);
         } catch (SocketException e) {
-            closeStream();
+            System.err.println("socket exception line 163");
+            e.printStackTrace();
         }
         catch (IOException e) {
-            closeStream();
+            System.err.println("error sending object line 167");
+            e.printStackTrace();
         }
     }
 
@@ -189,6 +186,7 @@ public class Game implements Constants, Runnable {
             outputStreamO.close();
             outputStreamX.close();
         } catch (SocketException e) {
+            System.err.println("Someone closed the game, please check the Sockets");
             e.printStackTrace();
         }
         catch (IOException e) {
@@ -198,6 +196,9 @@ public class Game implements Constants, Runnable {
 
     @Override
     public void run() {
-
+        while(true) {
+                setupTheGame();
+                break;
+        }
     }
 }

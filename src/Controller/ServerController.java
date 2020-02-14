@@ -50,7 +50,7 @@ public class ServerController implements Constants {
                 Game game = new Game(outputStreamX, outputStreamO, inputStreamX, inputStreamO);
                 pool.execute(game);
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
